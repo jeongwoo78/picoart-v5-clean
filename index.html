@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎨 PicoArt v5</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        h1 {
+            text-align: center;
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+        .version {
+            text-align: center;
+            color: #28a745;
+            font-size: 1em;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 40px;
+            font-size: 1.1em;
+        }
+        .section {
+            margin-bottom: 30px;
+        }
+        h3 {
+            margin-bottom: 15px;
+            color: #333;
+            font-size: 1.2em;
+        }
+        input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1em;
+            margin-bottom: 5px;
+            font-family: monospace;
+        }
+        small {
+            color: #999;
+            font-size: 0.85em;
+        }
+        .upload-area {
+            border: 3px dashed #ddd;
+            border-radius: 15px;
+            padding: 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: #f9f9f9;
+        }
+        .upload-area:hover {
+            border-color: #667eea;
+            background: #f5f3ff;
+        }
+        .upload-area p {
+            font-size: 1.1em;
+            color: #666;
+        }
+        .preview-image {
+            max-width: 100%;
+            max-height: 300px;
+            border-radius: 10px;
+            margin-top: 20px;
+            display: none;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        .style-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+        .style-btn {
+            padding: 15px;
+            border: 2px solid #ddd;
+            background: white;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 1em;
+            font-weight: 500;
+        }
+        .style-btn:hover {
+            border-color: #667eea;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .style-btn.selected {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: #667eea;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+        .convert-btn {
+            width: 100%;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.2em;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+        .convert-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
+        }
+        .convert-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+        .progress {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        #progressText {
+            color: #667eea;
+            font-size: 1.1em;
+            font-weight: 500;
+        }
+        .result {
+            display: none;
+            text-align: center;
+        }
+        .result h3 {
+            color: #28a745;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+        }
+        .result-image {
+            max-width: 100%;
+            border-radius: 10px;
+            margin: 20px 0;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+        }
+        .download-btn {
+            padding: 15px 30px;
+            background: #28a745;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1.1em;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+        .download-btn:hover {
+            background: #218838;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+        }
+        .error {
+            display: none;
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border-left: 4px solid #dc3545;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎨 PicoArt</h1>
+        <p class="version">v5.0 - 최종 완성 버전 ✨</p>
+        <p class="subtitle">AI로 당신의 사진을 명화로 변신시키세요</p>
+
+        <div class="error" id="error"></div>
+
+        <div class="section">
+            <h3>1️⃣ Replicate API 토큰</h3>
+            <input type="text" id="apiToken" placeholder="r8_xxxxxxxxxxxx">
+            <small>토큰은 저장되지 않습니다 | <a href="https://replicate.com/account/api-tokens" target="_blank">토큰 발급받기</a></small>
+        </div>
+
+        <div class="section">
+            <h3>2️⃣ 사진 업로드</h3>
+            <div class="upload-area" id="uploadArea">
+                <p>📸 클릭하여 사진 선택</p>
+            </div>
+            <input type="file" id="fileInput" accept="image/*" style="display: none;">
+            <img id="preview" class="preview-image">
+        </div>
+
+        <div class="section">
+            <h3>3️⃣ 스타일 선택</h3>
+            <div class="style-grid">
+                <button class="style-btn" data-style="vangogh">🌟 Van Gogh</button>
+                <button class="style-btn" data-style="picasso">🎭 Picasso</button>
+                <button class="style-btn" data-style="monet">🌸 Monet</button>
+                <button class="style-btn" data-style="munch">😱 Munch</button>
+                <button class="style-btn" data-style="klimt">💛 Klimt</button>
+                <button class="style-btn" data-style="watercolor">💧 수채화</button>
+            </div>
+        </div>
+
+        <button class="convert-btn" id="convertBtn" onclick="convert()" disabled>
+            🎨 스타일 변환 시작
+        </button>
+
+        <div class="progress" id="progress">
+            <div class="spinner"></div>
+            <p id="progressText">변환 준비 중...</p>
+        </div>
+
+        <div class="result" id="result">
+            <h3>✨ 완성!</h3>
+            <img id="resultImage" class="result-image">
+            <br>
+            <button class="download-btn" onclick="download()">💾 다운로드</button>
+        </div>
+    </div>
+
+    <script>
+        let uploadedImage = null;
+        let selectedStyle = '';
+        let resultUrl = '';
+
+        console.log('🎨 PicoArt v5 시작!');
+
+        document.getElementById('uploadArea').onclick = () => {
+            document.getElementById('fileInput').click();
+        };
+
+        document.getElementById('fileInput').onchange = (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            console.log('📁 파일 선택됨:', file.name);
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const img = new Image();
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    let width = img.width;
+                    let height = img.height;
+                    
+                    const maxSize = 800;
+                    if (width > maxSize || height > maxSize) {
+                        if (width > height) {
+                            height = (height * maxSize) / width;
+                            width = maxSize;
+                        } else {
+                            width = (width * maxSize) / height;
+                            height = maxSize;
+                        }
+                    }
+                    
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+                    
+                    canvas.toBlob((blob) => {
+                        uploadedImage = blob;
+                        const preview = document.getElementById('preview');
+                        preview.src = URL.createObjectURL(blob);
+                        preview.style.display = 'block';
+                        console.log('✅ 이미지 처리 완료:', width, 'x', height);
+                        updateButton();
+                    }, 'image/jpeg', 0.8);
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        };
+
+        document.querySelectorAll('.style-btn').forEach(btn => {
+            btn.onclick = () => {
+                document.querySelectorAll('.style-btn').forEach(b => b.classList.remove('selected'));
+                btn.classList.add('selected');
+                selectedStyle = btn.dataset.style;
+                console.log('🎨 스타일 선택됨:', selectedStyle);
+                updateButton();
+            };
+        });
+
+        function updateButton() {
+            const token = document.getElementById('apiToken').value;
+            document.getElementById('convertBtn').disabled = !(uploadedImage && selectedStyle && token);
+        }
+
+        document.getElementById('apiToken').oninput = updateButton;
+
+        async function convert() {
+            const token = document.getElementById('apiToken').value;
+            if (!token || !uploadedImage || !selectedStyle) {
+                showError('API 토큰, 사진, 스타일을 모두 입력해주세요.');
+                return;
+            }
+
+            document.getElementById('error').style.display = 'none';
+            document.getElementById('progress').style.display = 'block';
+            document.getElementById('result').style.display = 'none';
+            document.getElementById('progressText').textContent = '변환 준비 중...';
+
+            try {
+                console.log('🚀 변환 시작!');
+
+                const base64 = await new Promise((resolve) => {
+                    const reader = new FileReader();
+                    reader.onload = () => resolve(reader.result);
+                    reader.readAsDataURL(uploadedImage);
+                });
+
+                console.log('📤 API 호출 중...');
+                document.getElementById('progressText').textContent = 'AI 처리 요청 중...';
+                
+                const res = await fetch('/api/convert', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        apiToken: token,
+                        image: base64,
+                        style: selectedStyle
+                    })
+                });
+
+                const data = await res.json();
+                console.log('📥 API 응답:', data);
+
+                if (!res.ok) {
+                    throw new Error(data.error || `API 오류 (${res.status})`);
+                }
+
+                if (!data.predictionId) {
+                    throw new Error('predictionId가 없습니다: ' + JSON.stringify(data));
+                }
+
+                console.log('✅ predictionId:', data.predictionId);
+
+                document.getElementById('progressText').textContent = 'AI가 그림을 그리는 중...';
+                await poll(data.predictionId, token);
+
+            } catch (err) {
+                console.error('❌ 에러:', err);
+                showError(err.message);
+            }
+        }
+
+        async function poll(predictionId, token) {
+            console.log('🔄 폴링 시작:', predictionId);
+            let attempts = 0;
+            const maxAttempts = 60;
+
+            while (attempts < maxAttempts) {
+                await new Promise(r => setTimeout(r, 2000));
+                attempts++;
+
+                try {
+                    const url = `/api/status?predictionId=${predictionId}&apiToken=${token}`;
+                    console.log('📡 상태 확인:', attempts);
+                    
+                    const res = await fetch(url);
+                    const data = await res.json();
+
+                    if (!res.ok) {
+                        throw new Error(data.error || `상태 확인 오류 (${res.status})`);
+                    }
+
+                    const progress = Math.min(90, 10 + attempts * 5);
+                    document.getElementById('progressText').textContent = 
+                        `AI가 그림을 그리는 중... (${progress}%)`;
+
+                    if (data.status === 'succeeded') {
+                        console.log('🎉 변환 성공!');
+                        showResult(data.output);
+                        return;
+                    } else if (data.status === 'failed') {
+                        throw new Error('변환 실패: ' + (data.error || '알 수 없는 오류'));
+                    }
+
+                } catch (err) {
+                    console.error('❌ 폴링 에러:', err);
+                    throw err;
+                }
+            }
+            
+            throw new Error('시간 초과 (2분)');
+        }
+
+        function showResult(output) {
+            document.getElementById('progress').style.display = 'none';
+            resultUrl = Array.isArray(output) ? output[0] : output;
+            document.getElementById('resultImage').src = resultUrl;
+            document.getElementById('result').style.display = 'block';
+            console.log('✨ 결과 표시 완료!');
+        }
+
+        function showError(msg) {
+            document.getElementById('progress').style.display = 'none';
+            const err = document.getElementById('error');
+            err.textContent = '❌ ' + msg;
+            err.style.display = 'block';
+        }
+
+        function download() {
+            const a = document.createElement('a');
+            a.href = resultUrl;
+            a.download = `picoart_${selectedStyle}_${Date.now()}.png`;
+            a.click();
+            console.log('💾 다운로드 시작');
+        }
+    </script>
+</body>
+</html>
