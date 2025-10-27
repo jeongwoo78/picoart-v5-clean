@@ -51,16 +51,16 @@ module.exports = async (req, res) => {
       console.log('⚠️ Using fallback version');
     }
 
-    const styleImages = {
-      'vangogh': 'https://replicate.delivery/pbxt/JvhVGJtyLKKBpFQZKzLBHUGxTsKh73t1YJJyXFRnqVhX6xvh/starry_night.jpg',
-      'picasso': 'https://replicate.delivery/pbxt/JvhXwn0sxxsUP4DKgY9lZFKLd3EGvYmMOKCL9chcb3VCFBTH/guernica.jpg',
-      'monet': 'https://replicate.delivery/pbxt/JvhXqh5gYJPPiQPLEiKgXqGXvFYLl6LJvxOULJJnCRwY3xvh/water_lilies.jpg',
-      'munch': 'https://replicate.delivery/pbxt/JvhXqiFLTu3s0tN5c7bOhKzUCxMLUcS7OPrUpq6hXC1gFBTH/the_scream.jpg',
-      'klimt': 'https://replicate.delivery/pbxt/JvhXqkwLYGhN5YlY8OqQCKYsUoLHMvJqKdXuqfRjwUZm6xvh/the_kiss.jpg',
-      'watercolor': 'https://replicate.delivery/pbxt/JvhXqnXzWJBnLGJzHLmUGdKySUGLjtvCswzLkQwsYwXfFBTH/watercolor.jpg'
+    const stylePrompts = {
+      'vangogh': 'Van Gogh Starry Night style, post-impressionism, swirling brushstrokes, vibrant colors',
+      'picasso': 'Picasso cubist style, geometric shapes, abstract, multiple perspectives',
+      'monet': 'Monet impressionist style, water lilies, soft brushwork, light and color',
+      'munch': 'Edvard Munch expressionist style, The Scream, emotional, bold colors',
+      'klimt': 'Gustav Klimt art nouveau style, The Kiss, golden patterns, decorative',
+      'watercolor': 'delicate watercolor painting style, soft edges, translucent colors'
     };
 
-    const styleImage = styleImages[style] || styleImages['vangogh'];
+    const stylePrompt = stylePrompts[style] || stylePrompts['vangogh'];
 
     console.log('Creating prediction...');
     const response = await fetch('https://api.replicate.com/v1/predictions', {
@@ -73,9 +73,8 @@ module.exports = async (req, res) => {
         version: modelVersion,
         input: {
           image: image,
-          style_image: styleImage,
-          prompt: `${style} style artwork, high quality, masterpiece`,
-          negative_prompt: 'blurry, low quality, distorted, ugly',
+          prompt: stylePrompt,
+          negative_prompt: 'blurry, low quality, distorted, ugly, deformed',
         }
       })
     });
